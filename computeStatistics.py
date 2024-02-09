@@ -1,8 +1,29 @@
-with open('TC4.txt', 'r') as f:
+"""Reads file and retrieves statistics"""
+import sys
+import time
+
+start_time = time.time()
+if len(sys.argv) != 2:
+    print("Provide the file name as a command line argument.")
+    sys.exit()
+INPUT_FILE = str(sys.argv[1])
+
+def check_numeric(string):
+    """Function identifying and transforming numeric"""
+    try:
+        return float(string)
+    except ValueError:
+        return None
+
+with open(INPUT_FILE, 'r') as f:
     llist= f.readlines()
-input_list =  [int(line) for line in llist]
+
+num_list =  [check_numeric(line) for line in llist if check_numeric(line) is not None]
+
+
 
 def get_statistics(input_list):
+    """Calculates Statistics"""
     sorted_input = sorted(input_list)
     input_length = len(sorted_input)
 
@@ -22,19 +43,24 @@ def get_statistics(input_list):
 
     sample_standard_deviation = sample_variance**0.5
 
-    mean_standard_error = sample_standard_deviation / input_length**0.5
-
-    z_score_standard_error = 1.96 * mean_standard_error
-
-    mean_confidence_interval = [mean - z_score_standard_error, mean+ z_score_standard_error]
 
     return {
-        "mean": mean,
-        "median": median,
-        "mode": mode,
-        "sample_variance": sample_variance,
-        "sample_standard_deviation": sample_standard_deviation,
-        "mean_confidence_interval": mean_confidence_interval,
+        "COUNT": input_length,
+        "MEAN": mean,
+        "MEDIAN": median,
+        "MODE": mode,
+        "SD": sample_standard_deviation,
+        "VARIANCE": sample_variance,
     }
 
-print(get_statistics(input_list))
+stats_output= get_statistics(num_list)
+time_elapsed =time.time() - start_time
+print("--- %s seconds elapsed" % time_elapsed)
+
+with open('StatisticsResults.txt', 'a') as f:
+    f.write(INPUT_FILE + ' results:\n')
+    for key, value in stats_output.items():
+        f.write('%s:%s\n' % (key, value))
+    f.write('Execution time:' + str(time_elapsed) + ' seconds\n')
+    f.write('--------------------------------------------------\n')
+    
